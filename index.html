@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0c12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>سیناپس</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="%230a0c12"/><g transform="translate(8 8) scale(2)" fill="none" stroke="%236c8cff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></g></svg>'>
+<style>
+:root{
+  --bg:#0a0c12;
+  --bg-elev:#0f131c;
+  --panel:#141926;
+  --panel-2:#1c2233;
+  --panel-3:#252c40;
+  --border:#262d3f;
+  --border-2:#333c54;
+  --text:#e8ecf5;
+  --text-dim:#b0b8cc;
+  --muted:#6b7590;
+  --accent:#6c8cff;
+  --accent-2:#a86cff;
+  --accent-glow:rgba(108,140,255,.35);
+  --danger:#ff5f6d;
+  --success:#4ade80;
+  --warning:#fbbf24;
+  --nav-h:64px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;overscroll-behavior:none}
+body{
+  font-family:Tahoma,'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);
+  display:flex;flex-direction:column;
+  height:100vh;height:100dvh;overflow:hidden;font-size:14px;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- header ---------- */
+header{
+  flex:0 0 auto;z-index:20;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+  background:var(--bg-elev);border-bottom:1px solid var(--border);
+}
+.brand{display:flex;align-items:center;gap:9px}
+.brand-icon{
+  width:28px;height:28px;
+  filter:drop-shadow(0 0 10px rgba(108,140,255,.5));
+}
+.brand-name{
+  font-weight:800;font-size:16px;letter-spacing:-.2px;
+  background:linear-gradient(135deg,#6c8cff,#a86cff);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.header-actions{display:flex;gap:6px}
+.icon-btn{
+  width:38px;height:38px;border-radius:10px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--text-dim);cursor:pointer;
+  display:grid;place-items:center;transition:all .15s;
+}
+.icon-btn:active{transform:scale(.93);background:var(--panel-2)}
+.icon-btn svg{width:18px;height:18px}
+
+/* ---------- main / views ---------- */
+main{position:relative;flex:1 1 auto;min-height:0;overflow:hidden}
+.view{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden}
+.view[hidden]{display:none}
+
+/* ---------- graph view ---------- */
+#viewGraph{position:absolute;inset:0}
+#canvas{display:block;width:100%;height:100%;touch-action:none}
+
+.tagbar{
+  position:absolute;top:0;left:0;right:0;z-index:3;
+  display:flex;gap:6px;padding:10px 12px;
+  overflow-x:auto;scrollbar-width:none;
+  background:linear-gradient(to bottom,var(--bg) 0%,rgba(10,12,18,.7) 60%,transparent 100%);
+  padding-bottom:24px;
+  pointer-events:none;
+}
+.tagbar>*{pointer-events:auto}
+.tagbar::-webkit-scrollbar{display:none}
+.tag-chip{
+  flex:0 0 auto;padding:7px 12px;border-radius:16px;
+  background:rgba(28,34,51,.85);backdrop-filter:blur(8px);
+  border:1px solid var(--border);color:var(--text-dim);
+  font-size:12px;font-family:inherit;white-space:nowrap;
+  cursor:pointer;transition:all .15s;
+}
+.tag-chip:active{transform:scale(.94)}
+.tag-chip.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-color:transparent;color:#fff;font-weight:600;
+}
+
+.zoom-ctrl{
+  position:absolute;bottom:16px;left:14px;z-index:3;
+  display:flex;flex-direction:column;gap:6px;
+}
+.zoom-btn{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(20,25,38,.85);backdrop-filter:blur(10px);
+  border:1px solid var(--border);color:var(--text);
+  font-size:17px;cursor:pointer;display:grid;place-items:center;
+  transition:transform .12s;
+}
+.zoom-btn:active{transform:scale(.9)}
+
+.graph-empty{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;
+  text-align:center;padding:30px;pointer-events:none;
+}
+.graph-empty[hidden]{display:none}
+.empty-brain{
+  width:64px;height:64px;color:var(--accent);opacity:.85;
+  filter:drop-shadow(0 0 20px var(--accent-glow));
+}
+.empty-title{font-size:17px;font-weight:700;color:var(--text)}
+.empty-text{font-size:13px;color:var(--muted);line-height:1.8;max-width:260px}
+.empty-actions{display:flex;flex-direction:column;gap:8px;pointer-events:auto;margin-top:6px}
+
+/* ---------- list view ---------- */
+#viewList{background:var(--bg);overflow:hidden}
+.list-header{
+  flex:0 0 auto;padding:12px 14px 8px;
+  border-bottom:1px solid var(--border);
+}
+.list-search{
+  width:100%;padding:11px 14px;border-radius:12px;
+  background:var(--panel-2);border:1px solid var(--border);
+  color:var(--text);font-family:inherit;font-size:14px;outline:none;
+  transition:border-color .15s;
+}
+.list-search:focus{border-color:var(--accent)}
+.list-items{
+  flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:10px 12px calc(20px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:8px;
+}
+.list-item{
+  display:flex;gap:12px;padding:13px 14px;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:14px;cursor:pointer;transition:background .15s;
+}
+.list-item:active{background:var(--panel-2)}
+.list-item-dot{
+  flex:0 0 auto;width:8px;height:8px;border-radius:50%;
+  margin-top:8px;
+}
+.list-item-main{flex:1 1 auto;min-width:0}
+.list-item-title{
+  font-weight:700;font-size:14px;margin-bottom:4px;
+  display:flex;align-items:center;gap:6px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.list-item-pin{color:var(--warning);font-size:12px}
+.list-item-preview{
+  font-size:12.5px;color:var(--muted);line-height:1.7;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  margin-bottom:6px;
+}
+.list-item-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.list-item-meta span{display:flex;align-items:center;gap:3px}
+.list-empty{padding:60px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.8}
+
+/* ---------- bottom nav ---------- */
+.bottom-nav{
+  flex:0 0 auto;position:relative;z-index:15;
+  display:flex;align-items:center;justify-content:space-around;
+  height:var(--nav-h);
+  padding-bottom:env(safe-area-inset-bottom);
+  background:var(--bg-elev);
+  border-top:1px solid var(--border);
+}
+.nav-btn{
+  flex:1 1 0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;
+  background:none;border:none;color:var(--muted);
+  font-family:inherit;font-size:10.5px;cursor:pointer;
+  padding:8px 0;transition:color .15s;
+}
+.nav-btn svg{width:22px;height:22px}
+.nav-btn.active{color:var(--accent)}
+.nav-add{
+  flex:0 0 auto;width:54px;height:54px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:#fff;border:none;cursor:pointer;
+  margin-top:-24px;
+  display:grid;place-items:center;
+  box-shadow:0 6px 20px var(--accent-glow),0 0 0 4px var(--bg-elev);
+  transition:transform .15s;
+}
+.nav-add:active{transform:scale(.92)}
+.nav-add svg{width:26px;height:26px}
+
+/* ---------- modals ---------- */
+.modal{
+  position:fixed;inset:0;background:rgba(4,6,10,.75);
+  backdrop-filter:blur(6px);z-index:100;
+  display:flex;flex-direction:column;
+  animation:fade .16s ease;
+}
+.modal[hidden]{display:none}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{
+  margin-top:auto;background:var(--panel);
+  border-top:1px solid var(--border);
+  border-radius:22px 22px 0 0;
+  width:100%;height:92dvh; /* اصلاح شد: ارتفاع ثابت برای جلوگیری از کوچک شدن */
+  display:flex;flex-direction:column;
+  animation:up .24s cubic-bezier(.2,.9,.3,1);
+}
+.sheet.small{height:70dvh} /* اصلاح شد */
+@keyframes up{from{transform:translateY(60px);opacity:.4}to{transform:none;opacity:1}}
+.sheet-head{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);
+}
+.sheet-head strong{font-size:14.5px}
+.sheet-body{
+  flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:16px 16px calc(22px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:13px;
+}
+
+/* ---------- forms ---------- */
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label{font-size:12px;color:var(--muted);font-weight:600}
+.field input,.field textarea{
+  width:100%;padding:12px 13px;border-radius:12px;
+  background:var(--panel-2);border:1px solid var(--border);
+  color:var(--text);font-family:inherit;font-size:14px;outline:none;
+  transition:border-color .15s;
+}
+.field input:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:96px;line-height:1.8}
+
+/* buttons */
+.btn{
+  padding:11px 16px;border-radius:12px;border:1px solid var(--border);
+  background:var(--panel-2);color:var(--text);
+  font-family:inherit;font-size:13.5px;cursor:pointer;
+  transition:transform .12s,background .15s;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  white-space:nowrap;
+}
+.btn:active{transform:scale(.96)}
+.btn.primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  border-color:transparent;color:#fff;font-weight:600;
+  box-shadow:0 4px 14px var(--accent-glow);
+}
+.btn.ghost{background:transparent}
+.btn.danger{
+  background:rgba(255,95,109,.08);border-color:rgba(255,95,109,.35);color:var(--danger);
+}
+.btn.block{width:100%}
+
+/* section title */
+.section-title{
+  font-size:12px;color:var(--muted);font-weight:600;
+  margin-top:6px;display:flex;align-items:center;gap:6px;
+}
+.section-title::before{
+  content:'';width:3px;height:12px;border-radius:2px;
+  background:linear-gradient(180deg,var(--accent),var(--accent-2));
+}
+
+/* color swatches */
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap}
+.color-swatch{
+  width:30px;height:30px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:transform .15s,border-color .15s;
+  position:relative;
+}
+.color-swatch:active{transform:scale(.9)}
+.color-swatch.selected{border-color:#fff;transform:scale(1.1)}
+.color-swatch.auto{
+  background:linear-gradient(135deg,#444,#888);
+  font-size:14px;display:grid;place-items:center;color:#fff;
+}
+
+/* toggle */
+.toggle{
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+  font-size:13.5px;padding:10px;border-radius:12px;
+  background:var(--panel-2);border:1px solid var(--border);
+}
+.toggle input{display:none}
+.toggle-box{
+  width:38px;height:22px;border-radius:11px;
+  background:var(--panel-3);position:relative;
+  transition:background .2s;flex:0 0 auto;
+}
+.toggle-box::after{
+  content:'';position:absolute;top:3px;right:3px;
+  width:16px;height:16px;border-radius:50%;
+  background:#fff;transition:transform .2s;
+}
+.toggle input:checked+.toggle-box{background:var(--accent)}
+.toggle input:checked+.toggle-box::after{transform:translateX(-16px)}
+
+/* chips (connections) */
+.chips{
+  display:flex;flex-direction:column;gap:6px;
+  max-height:220px;min-height:150px;flex-shrink:0; /* اصلاح شد: جلوگیری از جمع شدن */
+  overflow-y:auto;padding:2px;
+}
+.chip{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:11px;
+  background:var(--panel-2);border:1px solid var(--border);
+  font-size:13px;cursor:pointer;user-select:none;
+  transition:all .15s;
+}
+.chip.on{border-color:var(--accent);background:rgba(108,140,255,.12)}
+.tick{
+  width:18px;height:18px;border-radius:5px;
+  border:1.5px solid var(--border-2);
+  display:grid;place-items:center;font-size:11px;
+  flex:0 0 auto;transition:all .15s;
+}
+.chip.on .tick{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* link label rows */
+.link-label-row{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 11px;border-radius:10px;
+  background:var(--panel-2);border:1px solid var(--border);
+  margin-bottom:6px;
+}
+.link-label-title{
+  flex:1 1 auto;font-size:12.5px;color:var(--text-dim);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  min-width:0;
+}
+.link-label-row input{
+  flex:0 0 42%;padding:7px 9px;border-radius:8px;
+  background:var(--panel);border:1px solid var(--border);
+  color:var(--text);font-family:inherit;font-size:12px;outline:none;
+}
+.link-label-row input:focus{border-color:var(--accent)}
+
+/* stats */
+.stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+}
+.stat{
+  padding:14px 8px;border-radius:12px;
+  background:var(--panel-2);border:1px solid var(--border);
+  text-align:center;
+}
+.stat-num{
+  font-size:22px;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.stat-label{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+/* about */
+.about{
+  text-align:center;font-size:12px;color:var(--muted);
+  line-height:1.9;padding:14px 10px 4px;
+}
+.about strong{color:var(--text-dim)}
+
+/* toast */
+.toast{
+  position:fixed;bottom:calc(var(--nav-h) + 20px + env(safe-area-inset-bottom));
+  left:50%;transform:translateX(-50%) translateY(20px);
+  opacity:0;pointer-events:none;
+  background:#1e2536;border:1px solid var(--border-2);
+  color:var(--text);padding:11px 20px;border-radius:12px;
+  font-size:13px;z-index:300;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+  transition:all .25s;
+  max-width:90vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* fade-in animation for list items */
+@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.list-item{animation:slideIn .2s ease both}
+
+/* scrollbar */
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <defs>
+        <linearGradient id="brainGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#6c8cff"/>
+          <stop offset="100%" stop-color="#a86cff"/>
+        </linearGradient>
+      </defs>
+      <path stroke="url(#brainGrad)" d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+      <path stroke="url(#brainGrad)" d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+    </svg>
+    <span class="brand-name">سیناپس</span>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn" id="btnSearch" title="جستجو">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    </button>
+    <button class="icon-btn" id="btnSettings" title="تنظیمات">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- ========== گراف ========== -->
+  <div class="view" id="viewGraph">
+    <canvas id="canvas"></canvas>
+    <div class="tagbar" id="tagbar" hidden></div>
+    <div class="zoom-ctrl">
+      <button class="zoom-btn" data-zoom="in">+</button>
+      <button class="zoom-btn" data-zoom="out">−</button>
+      <button class="zoom-btn" data-zoom="fit">⛶</button>
+    </div>
+    <div class="graph-empty" id="graphEmpty">
+      <svg class="empty-brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/>
+        <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/>
+      </svg>
+      <div class="empty-title">مغزت خالیست</div>
+      <div class="empty-text">اولین یادداشتت را بساز یا با دادهٔ نمونه شروع کن تا گراف شکل بگیرد</div>
+      <div class="empty-actions">
+        <button class="btn primary" id="emptyAdd">+ یادداشت جدید</button>
+        <button class="btn ghost" id="emptySample">✨ دادهٔ نمونه</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== لیست ========== -->
+  <div class="view" id="viewList" hidden>
+    <div class="list-header">
+      <input type="search" class="list-search" id="listSearch" placeholder="جستجو در عنوان، متن یا برچسب...">
+    </div>
+    <div class="list-items" id="listItems"></div>
+  </div>
+</main>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-view="graph">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    <span>گراف</span>
+  </button>
+  <button class="nav-add" id="navAdd" title="یادداشت جدید">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+  <button class="nav-btn" data-view="list">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    <span>لیست</span>
+  </button>
+</nav>
+
+<!-- ========== ادیتور ========== -->
+<div class="modal" id="editorModal" hidden>
+  <div class="sheet">
+    <div class="sheet-head">
+      <button class="btn ghost" id="edCancel">بستن</button>
+      <strong id="edHeading">یادداشت جدید</strong>
+      <button class="btn primary" id="edSave">ذخیره</button>
+    </div>
+    <div class="sheet-body">
+      <div class="field">
+        <label>عنوان</label>
+        <input type="text" id="edName" placeholder="مثلاً: ایدهٔ پروژهٔ جدید" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>متن</label>
+        <textarea id="edBody" placeholder="هرچیزی که می‌خواهی یادت بماند..."></textarea>
+      </div>
+      <div class="field">
+        <label>برچسب‌ها (با کاما جدا کن)</label>
+        <input type="text" id="edTags" placeholder="کار، ایده، مطالعه" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>رنگ گره</label>
+        <div class="color-swatches" id="edColors"></div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="edPinned">
+        <span class="toggle-box"></span>
+        <span>سنجاق کردن به بالای لیست</span>
+      </label>
+
+      <div class="section-title">ارتباط‌ها <span id="edConnCount" style="color:var(--accent);font-weight:400"></span></div>
+      <input type="text" id="edSearch" placeholder="جستجو در یادداشت‌ها..." style="width:100%;padding:10px 12px;border-radius:10px;background:var(--panel-2);border:1px solid var(--border);color:var(--text);font-family:inherit;font-size:13px;outline:none" autocomplete="off">
+      <div class="chips" id="edLinks"></div>
+      <div id="edLinkLabels"></div>
+
+      <button class="btn danger block" id="edDelete" style="margin-top:10px">حذف این یادداشت</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== تنظیمات ========== -->
+<div class="modal" id="settingsModal" hidden>
+  <div class="sheet">
+    <div class="sheet-head">
+      <button class="btn ghost" id="setClose">بستن</button>
+      <strong>تنظیمات</strong>
+      <span style="width:56px"></span>
+    </div>
+    <div class="sheet-body">
+      <div class="stats">
+        <div class="stat"><div class="stat-num" id="statNotes">0</div><div class="stat-label">یادداشت</div></div>
+        <div class="stat"><div class="stat-num" id="statLinks">0</div><div class="stat-label">ارتباط</div></div>
+        <div class="stat"><div class="stat-num" id="statTags">0</div><div class="stat-label">برچسب</div></div>
+      </div>
+
+      <div class="section-title">داده‌ها</div>
+      <button class="btn block" id="setExportJSON">⬇️ خروجی JSON</button>
+      <button class="btn block" id="setExportPNG">🖼️ خروجی تصویر گراف</button>
+      <button class="btn block" id="setImport">⬆️ ورود از فایل JSON</button>
+
+      <div class="section-title">شروع سریع</div>
+      <button class="btn block" id="setSample">✨ افزودن دادهٔ نمونه</button>
+
+      <div class="section-title">منطقهٔ خطر</div>
+      <button class="btn danger block" id="setClear">🗑️ پاک کردن همهٔ داده‌ها</button>
+
+      <div class="about">
+        <strong>سیناپس</strong> — مغز دوم شما<br>
+        v-1.0.0
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== منوی گره (long press) ========== -->
+<div class="modal" id="nodeMenuModal" hidden>
+  <div class="sheet small">
+    <div class="sheet-head">
+      <button class="btn ghost" id="nmClose">بستن</button>
+      <strong id="nmTitle" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%">—</strong>
+      <span style="width:56px"></span>
+    </div>
+    <div class="sheet-body">
+      <button class="btn block" data-nm="edit">✏️ ویرایش</button>
+      <button class="btn block" data-nm="pin">📌 سنجاق / برداشتن سنجاق</button>
+      <button class="btn block danger" data-nm="delete">🗑️ حذف</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept=".json,application/json" hidden>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   0) پیکربندی برنامه (قابل توسعه)
+   ========================================================= */
+const APP = {
+  name: 'سیناپس',
+  version: '1.0.0',
+  storageKey: 'synapse.v1',
+  schemaVersion: 2
+};
+
+const NODE_COLORS = [
+  { hue: 220, name: 'آبی' },
+  { hue: 265, name: 'بنفش' },
+  { hue: 320, name: 'صورتی' },
+  { hue: 0,   name: 'قرمز' },
+  { hue: 25,  name: 'نارنجی' },
+  { hue: 45,  name: 'زرد' },
+  { hue: 140, name: 'سبز' },
+  { hue: 180, name: 'فیروزه‌ای' }
+];
+
+const CFG = {
+  repulsion: 12000,
+  springK: 0.035,
+  springLen: 120,
+  gravity: 0.015,
+  damping: 0.85,
+  maxSpeed: 8
+};
+
+/* =========================================================
+   1) ابزارها
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* =========================================================
+   2) داده و ایندکس
+   ========================================================= */
+let data = { nodes: [], links: [] };
+let nodeIndex = new Map();
+
+function rebuildIndex() {
+  nodeIndex.clear();
+  for (const n of data.nodes) nodeIndex.set(n.id, n);
+}
+const nodeById = id => nodeIndex.get(id);
+
+function allTags() {
+  const s = new Set();
+  for (const n of data.nodes) for (const t of n.tags || []) s.add(t);
+  return [...s].sort();
+}
+
+/* =========================================================
+   3) ذخیره‌سازی (با مهاجرت نسخه)
+   ========================================================= */
+function persist() {
+  const payload = {
+    version: APP.schemaVersion,
+    app: APP.name,
+    savedAt: new Date().toISOString(),
+    nodes: data.nodes.map(n => ({
+      id: n.id,
+      title: n.title,
+      body: n.body || '',
+      tags: n.tags || [],
+      hue: typeof n.hue === 'number' ? n.hue : null,
+      pinned: !!n.pinned,
+      x: Math.round(n.x),
+      y: Math.round(n.y),
+      created: n.created,
+      updated: n.updated || n.created
+    })),
+    links: data.links.map(l => ({
+      id: l.id, source: l.source, target: l.target, label: l.label || ''
+    }))
+  };
+  try {
+    localStorage.setItem(APP.storageKey, JSON.stringify(payload));
+  } catch (e) {
+    toast('ذخیره‌سازی ناموفق');
+    console.warn(e);
+  }
+}
+
+function migrate(p) {
+  // v1 (بدون نسخه) -> v2 : افزودن hue و pinned
+  if (!p.version || p.version < 2) {
+    p.nodes = (p.nodes || []).map(n => ({
+      ...n,
+      hue: typeof n.hue === 'number' ? n.hue : null,
+      pinned: !!n.pinned
+    }));
+    p.version = 2;
+  }
+  return p;
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(APP.storageKey);
+    if (!raw) return;
+    let p = JSON.parse(raw);
+    if (!p || !Array.isArray(p.nodes)) return;
+    p = migrate(p);
+
+    data.nodes = p.nodes.map(n => ({
+      id: n.id || uid(),
+      title: n.title || 'بدون عنوان',
+      body: n.body || '',
+      tags: Array.isArray(n.tags) ? n.tags : [],
+      hue: typeof n.hue === 'number' ? n.hue : null,
+      pinned: !!n.pinned,
+      x: typeof n.x === 'number' ? n.x : (Math.random() - .5) * 340,
+      y: typeof n.y === 'number' ? n.y : (Math.random() - .5) * 340,
+      vx: (Math.random() - .5) * 2,
+      vy: (Math.random() - .5) * 2,
+      ax: 0, ay: 0,
+      created: n.created || Date.now(),
+      updated: n.updated || n.created || Date.now()
+    }));
+
+    rebuildIndex();
+    const ids = new Set(data.nodes.map(n => n.id));
+    data.links = (p.links || [])
+      .filter(l => l && ids.has(l.source) && ids.has(l.target) && l.source !== l.target)
+      .map(l => ({ id: l.id || uid(), source: l.source, target: l.target, label: l.label || '' }));
+  } catch (e) {
+    console.warn('load failed:', e);
+  }
+}
+
+/* درجهٔ گره = شعاع */
+function recomputeRadii() {
+  const deg = Object.create(null);
+  for (const n of data.nodes) deg[n.id] = 0;
+  for (const l of data.links) {
+    if (deg[l.source] != null) deg[l.source]++;
+    if (deg[l.target] != null) deg[l.target]++;
+  }
+  for (const n of data.nodes) {
+    n.r = 18 + Math.min(deg[n.id] || 0, 8) * 1.9;
+  }
+}
+
+/* =========================================================
+   4) بوم و نما
+   ========================================================= */
+const canvas = $('#canvas');
+const ctx = canvas.getContext('2d');
+let W = 1, H = 1, DPR = 1;
+let view = { tx: 0, ty: 0, scale: 1, init: false };
+let needsRender = true;
+
+function resize() {
+  const r = canvas.getBoundingClientRect();
+  if (r.width < 2 || r.height < 2) return;
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = r.width;
+  H = r.height;
+  canvas.width = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+  if (!view.init) { view.tx = W / 2; view.ty = H / 2; view.init = true; }
+  needsRender = true;
+}
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 150));
+
+function toWorld(clientX, clientY) {
+  const r = canvas.getBoundingClientRect();
+  return {
+    x: (clientX - r.left - view.tx) / view.scale,
+    y: (clientY - r.top - view.ty) / view.scale
+  };
+}
+
+function fitView() {
+  if (!data.nodes.length) {
+    view.tx = W / 2; view.ty = H / 2; view.scale = 1;
+    needsRender = true; return;
+  }
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const n of data.nodes) {
+    minX = Math.min(minX, n.x - n.r); maxX = Math.max(maxX, n.x + n.r);
+    minY = Math.min(minY, n.y - n.r); maxY = Math.max(maxY, n.y + n.r);
+  }
+  const pad = 70;
+  const gw = Math.max(1, maxX - minX + pad * 2);
+  const gh = Math.max(1, maxY - minY + pad * 2);
+  const s = clamp(Math.min(W / gw, H / gh), 0.15, 2.2);
+  view.scale = s;
+  view.tx = W / 2 - ((minX + maxX) / 2) * s;
+  view.ty = H / 2 - ((minY + maxY) / 2) * s;
+  needsRender = true;
+}
+
+/* =========================================================
+   5) فیزیک
+   ========================================================= */
+let physicsOn = true;
+function wake() { physicsOn = true; needsRender = true; }
+
+function step() {
+  const nodes = data.nodes;
+  const N = nodes.length;
+  if (!N) { physicsOn = false; return; }
+
+  for (const n of nodes) { n.ax = 0; n.ay = 0; }
+
+  for (let i = 0; i < N; i++) {
+    const a = nodes[i];
+    for (let j = i + 1; j < N; j++) {
+      const b = nodes[j];
+      let dx = b.x - a.x, dy = b.y - a.y;
+      let d2 = dx * dx + dy * dy;
+      if (d2 < 1) { dx = Math.random() - .5; dy = Math.random() - .5; d2 = 1; }
+      const d = Math.sqrt(d2);
+      let f = CFG.repulsion / d2;
+      if (f > 70) f = 70;
+      const minD = a.r + b.r + 14;
+      if (d < minD) f += (minD - d) * 0.9;
+      const ux = dx / d, uy = dy / d;
+      a.ax -= ux * f; a.ay -= uy * f;
+      b.ax += ux * f; b.ay += uy * f;
+    }
+  }
+
+  for (const l of data.links) {
+    const a = nodeById(l.source), b = nodeById(l.target);
+    if (!a || !b) continue;
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const d = Math.hypot(dx, dy) || 0.01;
+    const f = (d - CFG.springLen) * CFG.springK;
+    const ux = dx / d, uy = dy / d;
+    a.ax += ux * f; a.ay += uy * f;
+    b.ax -= ux * f; b.ay -= uy * f;
+  }
+
+  for (const n of nodes) {
+    n.ax -= n.x * CFG.gravity;
+    n.ay -= n.y * CFG.gravity;
+  }
+
+  let energy = 0;
+  for (const n of nodes) {
+    if (n.fixed) { n.vx = 0; n.vy = 0; continue; }
+    n.vx = (n.vx + n.ax) * CFG.damping;
+    n.vy = (n.vy + n.ay) * CFG.damping;
+    const sp = Math.hypot(n.vx, n.vy);
+    if (sp > CFG.maxSpeed) { n.vx *= CFG.maxSpeed / sp; n.vy *= CFG.maxSpeed / sp; }
+    n.x += n.vx; n.y += n.vy;
+    energy += sp * sp;
+  }
+  if (energy < 0.5) physicsOn = false;
+}
+
+/* =========================================================
+   6) رندر
+   ========================================================= */
+let selectedId = null;
+let activeTag = null;
+let hoverId = null;
+
+function hueOf(n) {
+  if (typeof n.hue === 'number') return n.hue;
+  const key = (n.tags && n.tags[0]) || n.title || n.id;
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) % 360;
+  return h;
+}
+
+function isVisible(n) {
+  return !activeTag || (n.tags || []).includes(activeTag);
+}
+
+function render() {
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+
+  // پس‌زمینهٔ گرادیانی
+  const grad = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.8);
+  grad.addColorStop(0, '#0e1220');
+  grad.addColorStop(1, '#0a0c12');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.save();
+  ctx.translate(view.tx, view.ty);
+  ctx.scale(view.scale, view.scale);
+
+  const x0 = -view.tx / view.scale, y0 = -view.ty / view.scale;
+  const x1 = (W - view.tx) / view.scale, y1 = (H - view.ty) / view.scale;
+
+  // شبکه‌ی نقطه‌ای
+  const stepG = 44;
+  const nx = (x1 - x0) / stepG;
+  if (nx < 100) {
+    ctx.fillStyle = 'rgba(140,160,220,0.05)';
+    const r = Math.min(1 / view.scale, 1.8);
+    for (let x = Math.floor(x0 / stepG) * stepG; x < x1; x += stepG) {
+      for (let y = Math.floor(y0 / stepG) * stepG; y < y1; y += stepG) {
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  // یال‌ها
+  ctx.lineCap = 'round';
+  for (const l of data.links) {
+    const a = nodeById(l.source), b = nodeById(l.target);
+    if (!a || !b) continue;
+    if (Math.max(a.x, b.x) < x0 - 120 || Math.min(a.x, b.x) > x1 + 120) continue;
+    if (Math.max(a.y, b.y) < y0 - 120 || Math.min(a.y, b.y) > y1 + 120) continue;
+
+    const vis = isVisible(a) && isVisible(b);
+    const active = selectedId && (a.id === selectedId || b.id === selectedId);
+
+    let stroke = 'rgba(140,160,210,0.22)';
+    let lw = 1.3 / view.scale;
+    if (active) { stroke = 'rgba(140,170,255,0.9)'; lw = 2.4 / view.scale; }
+    else if (selectedId) { stroke = 'rgba(140,160,210,0.10)'; }
+    if (!vis) { stroke = 'rgba(140,160,210,0.06)'; }
+
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = lw;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+
+    if (l.label && view.scale > 1.0 && vis) {
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      const fs = 10.5 / view.scale;
+      ctx.save();
+      ctx.font = `${fs}px Tahoma, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const tw = ctx.measureText(l.label).width;
+      ctx.fillStyle = 'rgba(14,18,32,0.85)';
+      const px = 4 / view.scale, py = 2 / view.scale;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(mx - tw / 2 - px, my - fs / 2 - py, tw + px * 2, fs + py * 2, 4 / view.scale);
+      else ctx.rect(mx - tw / 2 - px, my - fs / 2 - py, tw + px * 2, fs + py * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(200,215,240,0.85)';
+      ctx.fillText(l.label, mx, my);
+      ctx.restore();
+    }
+  }
+
+  // گره‌ها
+  ctx.direction = 'rtl';
+  const now = Date.now();
+  for (const n of data.nodes) {
+    if (n.x + n.r < x0 - 160 || n.x - n.r > x1 + 160) continue;
+    if (n.y + n.r < y0 - 100 || n.y - n.r > y1 + 100) continue;
+
+    const h = hueOf(n);
+    const vis = isVisible(n);
+    const sel = selectedId === n.id;
+    const hov = hoverId === n.id;
+    const alpha = vis ? 1 : 0.12;
+
+    ctx.globalAlpha = alpha;
+
+    // هالهٔ انتخاب / پالس
+    if (sel) {
+      const pulse = 0.5 + 0.5 * Math.sin(now / 420);
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r + 10 / view.scale + pulse * 4 / view.scale, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${h},85%,60%,${0.10 + pulse * 0.08})`;
+      ctx.fill();
+    }
+
+    // بدنهٔ گره
+    const rEff = n.r * (hov ? 1.08 : 1);
+    const g = ctx.createRadialGradient(n.x - rEff * .3, n.y - rEff * .3, rEff * .2, n.x, n.y, rEff);
+    g.addColorStop(0, `hsl(${h},55%,38%)`);
+    g.addColorStop(1, `hsl(${h},50%,22%)`);
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, rEff, 0, Math.PI * 2);
+    ctx.fillStyle = g;
+    ctx.fill();
+
+    ctx.lineWidth = (sel ? 3 : 2) / view.scale;
+    ctx.strokeStyle = sel ? '#ffffff' : `hsl(${h},75%,58%)`;
+    ctx.stroke();
+
+    // نقطهٔ مرکزی
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, Math.max(rEff * 0.16, 2), 0, Math.PI * 2);
+    ctx.fillStyle = `hsl(${h},90%,75%)`;
+    ctx.fill();
+
+    // ستارهٔ سنجاق
+    if (n.pinned) {
+      ctx.save();
+      ctx.font = `${Math.max(11, 12 / view.scale)}px Tahoma, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillText('★', n.x + rEff * 0.72, n.y - rEff * 0.72);
+      ctx.restore();
+    }
+
+    // برچسب
+    const fs = Math.max(11, 12.5 / view.scale);
+    ctx.font = `600 ${fs}px Tahoma, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    let label = n.title || '';
+    if (label.length > 20) label = label.slice(0, 19) + '…';
+    const ly = n.y + rEff + 6 / view.scale;
+    const tw = ctx.measureText(label).width;
+
+    const padX = 5 / view.scale, padY = 2 / view.scale;
+    const bx = n.x - tw / 2 - padX;
+    const by = ly - padY;
+    const bw = tw + padX * 2;
+    const bh = fs + padY * 2;
+    const rr = 4 / view.scale;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, rr);
+    else ctx.rect(bx, by, bw, bh);
+    ctx.fillStyle = 'rgba(10,12,18,0.78)';
+    ctx.fill();
+
+    ctx.fillStyle = sel ? '#ffffff' : 'rgba(226,232,244,0.92)';
+    ctx.fillText(label, n.x, ly);
+
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.restore();
+}
+
+/* =========================================================
+   7) حلقهٔ اصلی
+   ========================================================= */
+let frameCount = 0;
+function loop() {
+  requestAnimationFrame(loop);
+  frameCount++;
+  if (physicsOn) { step(); needsRender = true; }
+  const shouldRender = needsRender || (selectedId && frameCount % 3 === 0);
+  if (shouldRender) { render(); needsRender = false; }
+}
+
+/* =========================================================
+   8) تعامل با بوم
+   ========================================================= */
+const pointers = new Map();
+let dragNode = null;
+let panning = false;
+let lastPan = { x: 0, y: 0 };
+let movedDist = 0;
+let pinchBase = null;
+let justPinched = false;
+
+let pressTimer = null;
+let pressedNode = null;
+let longPressFired = false;
+
+canvas.addEventListener('pointerdown', e => {
+  try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+  if (pointers.size === 1) {
+    movedDist = 0;
+    justPinched = false;
+    longPressFired = false;
+    const w = toWorld(e.clientX, e.clientY);
+    const n = hitTest(w.x, w.y);
+
+    if (n) {
+      dragNode = n;
+      n.fixed = true;
+      n.vx = 0; n.vy = 0;
+      selectedId = n.id;
+      needsRender = true;
+
+      // long press
+      pressedNode = n;
+      clearTimeout(pressTimer);
+      pressTimer = setTimeout(() => {
+        if (pressedNode === n && movedDist < 12) {
+          longPressFired = true;
+          if (dragNode) { dragNode.fixed = false; dragNode = null; }
+          openNodeMenu(n);
+        }
+      }, 500);
+    } else {
+      panning = true;
+      lastPan = { x: e.clientX, y: e.clientY };
+      if (selectedId) { selectedId = null; needsRender = true; }
+    }
+  } else if (pointers.size >= 2) {
+    clearTimeout(pressTimer);
+    pressedNode = null;
+    if (dragNode) { dragNode.fixed = false; dragNode = null; }
+    panning = false;
+    justPinched = true;
+    const pts = [...pointers.values()];
+    pinchBase = {
+      dist: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1,
+      mid: { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 },
+      scale: view.scale, tx: view.tx, ty: view.ty
+    };
+  }
+});
+
+canvas.addEventListener('pointermove', e => {
+  const p = pointers.get(e.pointerId);
+  if (!p) return;
+
+  const r = canvas.getBoundingClientRect();
+  const dx = e.clientX - p.x, dy = e.clientY - p.y;
+  movedDist += Math.hypot(dx, dy);
+  p.x = e.clientX; p.y = e.clientY;
+
+  // hover (ماوس)
+  if (e.pointerType === 'mouse' && pointers.size === 1) {
+    const w = toWorld(e.clientX, e.clientY);
+    const hn = hitTest(w.x, w.y);
+    const newHover = hn ? hn.id : null;
+    if (newHover !== hoverId) { hoverId = newHover; needsRender = true; }
+  }
+
+  if (pointers.size >= 2 && pinchBase) {
+    const pts = [...pointers.values()];
+    const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) || 1;
+    const mid = { x: (pts[0].x + pts[1].x) / 2 - r.left, y: (pts[0].y + pts[1].y) / 2 - r.top };
+    const baseMid = { x: pinchBase.mid.x - r.left, y: pinchBase.mid.y - r.top };
+    const s = clamp(pinchBase.scale * (dist / pinchBase.dist), 0.15, 4);
+    const wx = (baseMid.x - pinchBase.tx) / pinchBase.scale;
+    const wy = (baseMid.y - pinchBase.ty) / pinchBase.scale;
+    view.scale = s;
+    view.tx = mid.x - wx * s;
+    view.ty = mid.y - wy * s;
+    needsRender = true;
+  } else if (dragNode) {
+    const w = toWorld(e.clientX, e.clientY);
+    dragNode.x = w.x;
+    dragNode.y = w.y;
+    dragNode.vx = 0; dragNode.vy = 0;
+    wake();
+  } else if (panning) {
+    view.tx += dx;
+    view.ty += dy;
+    needsRender = true;
+  }
+});
+
+function endPointer(e) {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.delete(e.pointerId);
+  clearTimeout(pressTimer);
+  pressedNode = null;
+
+  if (pointers.size === 0) {
+    if (dragNode) {
+      dragNode.fixed = false;
+      if (movedDist < 9 && !justPinched && !longPressFired) {
+        const id = dragNode.id;
+        dragNode = null;
+        openEditor(id);
+        return;
+      }
+      dragNode = null;
+    }
+    panning = false;
+    pinchBase = null;
+    justPinched = false;
+    wake();
+  } else if (pointers.size === 1) {
+    panning = false;
+    dragNode = null;
+    pinchBase = null;
+  }
+}
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('pointerleave', () => {
+  if (hoverId) { hoverId = null; needsRender = true; }
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  const mx = e.clientX - r.left, my = e.clientY - r.top;
+  const wx = (mx - view.tx) / view.scale;
+  const wy = (my - view.ty) / view.scale;
+  const s = clamp(view.scale * Math.exp(-e.deltaY * 0.0016), 0.15, 4);
+  view.scale = s;
+  view.tx = mx - wx * s;
+  view.ty = my - wy * s;
+  needsRender = true;
+}, { passive: false });
+
+function hitTest(wx, wy) {
+  for (let i = data.nodes.length - 1; i >= 0; i--) {
+    const n = data.nodes[i];
+    if (!isVisible(n)) continue;
+    const dx = wx - n.x, dy = wy - n.y;
+    if (dx * dx + dy * dy <= (n.r + 8) * (n.r + 8)) return n;
+  }
+  return null;
+}
+
+// کنترل زوم
+$$('[data-zoom]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const a = btn.dataset.zoom;
+    const cx = W / 2, cy = H / 2;
+    if (a === 'in' || a === 'out') {
+      const wx = (cx - view.tx) / view.scale;
+      const wy = (cy - view.ty) / view.scale;
+      const f = a === 'in' ? 1.3 : 1 / 1.3;
+      const s = clamp(view.scale * f, 0.15, 4);
+      view.scale = s;
+      view.tx = cx - wx * s;
+      view.ty = cy - wy * s;
+    } else if (a === 'fit') {
+      fitView();
+    }
+    needsRender = true;
+  });
+});
+
+/* =========================================================
+   9) ویرایشگر
+   ========================================================= */
+let editingId = null;
+let edSelection = new Set();
+let edLabels = {};
+let edHue = null;
+
+function openEditor(id) {
+  editingId = id || null;
+  const n = id ? nodeById(id) : null;
+
+  $('#edName').value = n ? n.title : '';
+  $('#edBody').value = n ? (n.body || '') : '';
+  $('#edTags').value = n && n.tags.length ? n.tags.join('، ') : '';
+  $('#edPinned').checked = n ? !!n.pinned : false;
+  edHue = n && typeof n.hue === 'number' ? n.hue : null;
+  $('#edSearch').value = '';
+
+  $('#edHeading').textContent = n ? 'ویرایش یادداشت' : 'یادداشت جدید';
+  $('#edDelete').style.display = n ? '' : 'none';
+
+  // بارگذاری ارتباط‌ها
+  edSelection = new Set();
+  edLabels = {};
+  if (n) {
+    for (const l of data.links) {
+      let otherId = null;
+      if (l.source === n.id) otherId = l.target;
+      else if (l.target === n.id) otherId = l.source;
+      if (otherId && nodeById(otherId)) {
+        edSelection.add(otherId);
+        edLabels[otherId] = l.label || '';
+      }
+    }
+  }
+
+  renderColors();
+  renderEdLinks();
+  updateConnCount();
+
+  $('#editorModal').hidden = false;
+  if (!n) setTimeout(() => $('#edName').focus(), 250);
+}
+
+function closeEditor() {
+  $('#editorModal').hidden = true;
+  editingId = null;
+  edSelection = new Set();
+  edLabels = {};
+}
+
+function updateConnCount() {
+  const el = $('#edConnCount');
+  el.textContent = edSelection.size > 0 ? `(${edSelection.size})` : '';
+}
+
+function renderColors() {
+  const wrap = $('#edColors');
+  wrap.innerHTML = '';
+
+  // حالت خودکار
+  const auto = document.createElement('div');
+  auto.className = 'color-swatch auto' + (edHue === null ? ' selected' : '');
+  auto.title = 'خودکار';
+  auto.textContent = 'A';
+  auto.onclick = () => { edHue = null; renderColors(); };
+  wrap.appendChild(auto);
+
+  for (const c of NODE_COLORS) {
+    const el = document.createElement('div');
+    el.className = 'color-swatch' + (edHue === c.hue ? ' selected' : '');
+    el.style.background = `hsl(${c.hue},65%,52%)`;
+    el.title = c.name;
+    el.onclick = () => { edHue = c.hue; renderColors(); };
+    wrap.appendChild(el);
+  }
+}
+
+function renderEdLinkLabels() {
+  const labelsWrap = $('#edLinkLabels');
+  labelsWrap.innerHTML = '';
+  if (edSelection.size > 0) {
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = 'برچسب ارتباط‌ها (اختیاری)';
+    labelsWrap.appendChild(title);
+
+    for (const id of edSelection) {
+      const n = nodeById(id);
+      if (!n) continue;
+      const row = document.createElement('div');
+      row.className = 'link-label-row';
+      row.innerHTML = `
+        <span class="link-label-title">${escapeHtml(n.title)}</span>
+        <input type="text" placeholder="برچسب..." value="${escapeHtml(edLabels[id] || '')}" autocomplete="off">
+      `;
+      row.querySelector('input').addEventListener('input', e => {
+        edLabels[id] = e.target.value;
+      });
+      labelsWrap.appendChild(row);
+    }
+  }
+}
+
+function renderEdLinks() {
+  const chipsWrap = $('#edLinks');
+  const q = $('#edSearch').value.trim().toLowerCase();
+
+  chipsWrap.innerHTML = '';
+
+  const others = data.nodes.filter(n => n.id !== editingId);
+  const filtered = q
+    ? others.filter(n => (n.title || '').toLowerCase().includes(q) || (n.body || '').toLowerCase().includes(q))
+    : others;
+
+  if (!filtered.length) {
+    chipsWrap.innerHTML = '<div style="color:var(--muted);font-size:12.5px;text-align:center;padding:14px">یادداشت دیگری برای اتصال وجود ندارد</div>';
+  } else {
+    for (const n of filtered) {
+      const on = edSelection.has(n.id);
+      const chip = document.createElement('div');
+      chip.className = 'chip' + (on ? ' on' : '');
+      chip.innerHTML = `<span class="tick">${on ? '✓' : ''}</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(n.title)}</span>`;
+      
+      // اصلاح شد: فقط ظاهر همین تیک تغییر میکنه و کل لیست دوباره ساخته نمیشه
+      chip.addEventListener('click', () => {
+        if (edSelection.has(n.id)) {
+          edSelection.delete(n.id);
+          delete edLabels[n.id];
+          chip.classList.remove('on');
+          chip.querySelector('.tick').textContent = '';
+        } else {
+          edSelection.add(n.id);
+          if (!(n.id in edLabels)) edLabels[n.id] = '';
+          chip.classList.add('on');
+          chip.querySelector('.tick').textContent = '✓';
+        }
+        updateConnCount();
+        renderEdLinkLabels();
+      });
+      chipsWrap.appendChild(chip);
+    }
+  }
+  
+  renderEdLinkLabels();
+}
+
+$('#edSearch').addEventListener('input', renderEdLinks);
+
+function saveEditor() {
+  const title = $('#edName').value.trim() || 'بدون عنوان';
+  const body = $('#edBody').value;
+  const tags = $('#edTags').value.split(/[,،]/).map(s => s.trim()).filter(Boolean);
+  const pinned = $('#edPinned').checked;
+
+  let node;
+  if (editingId) {
+    node = nodeById(editingId);
+    if (!node) { closeEditor(); return; }
+    node.title = title;
+    node.body = body;
+    node.tags = tags;
+    node.pinned = pinned;
+    node.hue = edHue;
+    node.updated = Date.now();
+  } else {
+    node = {
+      id: uid(),
+      title, body, tags, pinned,
+      hue: edHue,
+      x: (W / 2 - view.tx) / view.scale + (Math.random() - .5) * 40,
+      y: (H / 2 - view.ty) / view.scale + (Math.random() - .5) * 40,
+      vx: (Math.random() - .5) * 2,
+      vy: (Math.random() - .5) * 2,
+      ax: 0, ay: 0,
+      created: Date.now(), updated: Date.now(),
+      r: 18
+    };
+    data.nodes.push(node);
+    rebuildIndex();
+  }
+
+  // بازسازی یال‌های این گره
+  data.links = data.links.filter(l => l.source !== node.id && l.target !== node.id);
+  for (const tid of edSelection) {
+    if (tid === node.id) continue;
+    if (!nodeById(tid)) continue;
+    data.links.push({
+      id: uid(),
+      source: node.id,
+      target: tid,
+      label: (edLabels[tid] || '').trim()
+    });
+  }
+
+  recomputeRadii();
+  persist();
+  wake();
+  renderTagBar();
+  updateEmpty();
+  renderList(); // به‌روزرسانی لیست
+
+  const wasNew = !editingId;
+  closeEditor();
+  toast(wasNew ? 'یادداشت ساخته شد ✓' : 'ذخیره شد ✓');
+
+  if (wasNew) {
+    setTimeout(() => {
+      setView('graph');
+      view.scale = Math.max(view.scale, 0.9);
+      view.tx = W / 2 - node.x * view.scale;
+      view.ty = H / 2 - node.y * view.scale;
+      selectedId = node.id;
+      needsRender = true;
+    }, 80);
+  }
+}
+
+function deleteCurrent() {
+  if (!editingId) return;
+  if (!confirm('این یادداشت و همهٔ ارتباط‌هایش حذف شود؟')) return;
+  deleteNode(editingId);
+  closeEditor();
+  toast('حذف شد');
+}
+
+function deleteNode(id) {
+  data.nodes = data.nodes.filter(n => n.id !== id);
+  data.links = data.links.filter(l => l.source !== id && l.target !== id);
+  if (selectedId === id) selectedId = null;
+  rebuildIndex();
+  recomputeRadii();
+  persist();
+  wake();
+  renderTagBar();
+  updateEmpty();
+  renderList();
+}
+
+$('#edCancel').addEventListener('click', closeEditor);
+$('#edSave').addEventListener('click', saveEditor);
+$('#edDelete').addEventListener('click', deleteCurrent);
+$('#editorModal').addEventListener('click', e => {
+  if (e.target.id === 'editorModal') closeEditor();
+});
+
+/* =========================================================
+   10) منوی گره
+   ========================================================= */
+let nmNode = null;
+
+function openNodeMenu(n) {
+  nmNode = n;
+  $('#nmTitle').textContent = n.title || 'بدون عنوان';
+  const pinBtn = $('[data-nm="pin"]');
+  pinBtn.textContent = n.pinned ? '📌 برداشتن سنجاق' : '📌 سنجاق کردن';
+  $('#nodeMenuModal').hidden = false;
+  selectedId = n.id;
+  needsRender = true;
+}
+
+function closeNodeMenu() {
+  $('#nodeMenuModal').hidden = true;
+  nmNode = null;
+}
+
+$$('[data-nm]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!nmNode) return;
+    const a = btn.dataset.nm;
+    if (a === 'edit') {
+      const id = nmNode.id;
+      closeNodeMenu();
+      openEditor(id);
+    } else if (a === 'pin') {
+      nmNode.pinned = !nmNode.pinned;
+      nmNode.updated = Date.now();
+      persist(); wake(); renderList();
+      toast(nmNode.pinned ? 'سنجاق شد' : 'سنجاق برداشته شد');
+      closeNodeMenu();
+    } else if (a === 'delete') {
+      const id = nmNode.id;
+      closeNodeMenu();
+      if (confirm('این یادداشت حذف شود؟')) {
+        deleteNode(id);
+        toast('حذف شد');
+      }
+    }
+  });
+});
+
+$('#nmClose').addEventListener('click', closeNodeMenu);
+$('#nodeMenuModal').addEventListener('click', e => {
+  if (e.target.id === 'nodeMenuModal') closeNodeMenu();
+});
+
+/* =========================================================
+   11) نماها
+   ========================================================= */
+let currentView = 'graph';
+
+function setView(v) {
+  currentView = v;
+  $('#viewGraph').hidden = v !== 'graph';
+  $('#viewList').hidden = v !== 'list';
+  $$('.nav-btn[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  if (v === 'graph') setTimeout(resize, 30);
+  if (v === 'list') renderList();
+}
+
+$$('.nav-btn[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => setView(btn.dataset.view));
+});
+
+$('#navAdd').addEventListener('click', () => openEditor(null));
+$('#emptyAdd').addEventListener('click', () => openEditor(null));
+$('#emptySample').addEventListener('click', () => addSample());
+
+$('#btnSearch').addEventListener('click', () => {
+  setView('list');
+  setTimeout(() => $('#listSearch').focus(), 120);
+});
+
+/* =========================================================
+   12) لیست
+   ========================================================= */
+function renderList() {
+  const wrap = $('#listItems');
+  const q = ($('#listSearch').value || '').trim().toLowerCase();
+  wrap.innerHTML = '';
+
+  let list = data.nodes.slice();
+  if (q) {
+    list = list.filter(n =>
+      (n.title || '').toLowerCase().includes(q) ||
+      (n.body || '').toLowerCase().includes(q) ||
+      (n.tags || []).some(t => t.toLowerCase().includes(q))
+    );
+  }
+
+  list.sort((a, b) => {
+    if (!!b.pinned !== !!a.pinned) return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0);
+    return (b.updated || 0) - (a.updated || 0);
+  });
+
+  if (!list.length) {
+    wrap.innerHTML = `<div class="list-empty">
+      ${q ? 'چیزی پیدا نشد' : 'هنوز یادداشتی نداری.<br>با دکمهٔ + یکی بساز.'}
+    </div>`;
+    return;
+  }
+
+  for (const n of list) {
+    const deg = data.links.reduce((s, l) => s + (l.source === n.id || l.target === n.id ? 1 : 0), 0);
+    const h = hueOf(n);
+    const el = document.createElement('div');
+    el.className = 'list-item';
+    el.innerHTML = `
+      <div class="list-item-dot" style="background:hsl(${h},70%,55%)"></div>
+      <div class="list-item-main">
+        <div class="list-item-title">
+          ${n.pinned ? '<span class="list-item-pin">★</span>' : ''}
+          <span style="overflow:hidden;text-overflow:ellipsis">${escapeHtml(n.title)}</span>
+        </div>
+        ${n.body ? `<div class="list-item-preview">${escapeHtml(n.body)}</div>` : ''}
+        <div class="list-item-meta">
+          ${deg ? `<span>🔗 ${deg} ارتباط</span>` : ''}
+          ${(n.tags || []).map(t => `<span>#${escapeHtml(t)}</span>`).join('')}
+        </div>
+      </div>
+    `;
+    el.addEventListener('click', () => openEditor(n.id));
+    wrap.appendChild(el);
+  }
+}
+
+$('#listSearch').addEventListener('input', renderList);
+
+/* =========================================================
+   13) تگ‌بار
+   ========================================================= */
+function renderTagBar() {
+  const bar = $('#tagbar');
+  const tags = allTags();
+  if (!tags.length) {
+    bar.hidden = true;
+    activeTag = null;
+    return;
+  }
+  bar.hidden = false;
+  if (activeTag && !tags.includes(activeTag)) activeTag = null;
+
+  bar.innerHTML = '';
+  const allBtn = document.createElement('button');
+  allBtn.className = 'tag-chip' + (activeTag === null ? ' active' : '');
+  allBtn.textContent = 'همه';
+  allBtn.onclick = () => { activeTag = null; renderTagBar(); needsRender = true; };
+  bar.appendChild(allBtn);
+
+  for (const t of tags) {
+    const btn = document.createElement('button');
+    btn.className = 'tag-chip' + (activeTag === t ? ' active' : '');
+    btn.textContent = '#' + t;
+    btn.onclick = () => { activeTag = t; renderTagBar(); needsRender = true; };
+    bar.appendChild(btn);
+  }
+}
+
+/* =========================================================
+   14) تنظیمات
+   ========================================================= */
+function updateStats() {
+  $('#statNotes').textContent = data.nodes.length;
+  $('#statLinks').textContent = data.links.length;
+  const tags = new Set();
+  data.nodes.forEach(n => (n.tags || []).forEach(t => tags.add(t)));
+  $('#statTags').textContent = tags.size;
+}
+
+$('#btnSettings').addEventListener('click', () => {
+  updateStats();
+  $('#settingsModal').hidden = false;
+});
+$('#setClose').addEventListener('click', () => { $('#settingsModal').hidden = true; });
+$('#settingsModal').addEventListener('click', e => {
+  if (e.target.id === 'settingsModal') $('#settingsModal').hidden = true;
+});
+
+$('#setExportJSON').addEventListener('click', () => { exportJSON(); });
+$('#setExportPNG').addEventListener('click', () => { exportPNG(); });
+$('#setImport').addEventListener('click', () => { $('#fileInput').click(); });
+$('#setSample').addEventListener('click', () => {
+  $('#settingsModal').hidden = true;
+  addSample();
+});
+$('#setClear').addEventListener('click', () => {
+  if (!confirm('همهٔ یادداشت‌ها و ارتباط‌ها پاک شوند؟ (قابل بازگشت نیست)')) return;
+  data = { nodes: [], links: [] };
+  rebuildIndex();
+  selectedId = null;
+  activeTag = null;
+  persist();
+  wake();
+  renderTagBar();
+  updateEmpty();
+  renderList();
+  $('#settingsModal').hidden = true;
+  toast('همه چیز پاک شد');
+});
+
+/* =========================================================
+   15) ورود / خروج
+   ========================================================= */
+function exportJSON() {
+  const payload = {
+    version: APP.schemaVersion,
+    app: APP.name,
+    exportedAt: new Date().toISOString(),
+    nodes: data.nodes.map(n => ({
+      id: n.id, title: n.title, body: n.body || '', tags: n.tags || [],
+      hue: typeof n.hue === 'number' ? n.hue : null,
+      pinned: !!n.pinned,
+      x: Math.round(n.x), y: Math.round(n.y),
+      created: n.created, updated: n.updated
+    })),
+    links: data.links.map(l => ({ id: l.id, source: l.source, target: l.target, label: l.label || '' }))
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const d = new Date();
+  const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  a.href = url;
+  a.download = `synapse-${stamp}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast('فایل JSON ساخته شد');
+}
+
+function exportPNG() {
+  fitView();
+  render();
+  const d = new Date();
+  const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  canvas.toBlob(blob => {
+    if (!blob) { toast('ساخت تصویر ناموفق'); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `synapse-graph-${stamp}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    toast('تصویر گراف ذخیره شد');
+  }, 'image/png');
+}
+
+function importJSON(text) {
+  let p;
+  try { p = JSON.parse(text); } catch (e) { toast('فایل JSON معتبر نیست'); return; }
+  if (!p || !Array.isArray(p.nodes)) { toast('ساختار فایل درست نیست'); return; }
+  p = migrate(p);
+
+  const ids = new Set(data.nodes.map(n => n.id));
+  let addedNodes = 0;
+
+  for (const n of p.nodes) {
+    if (!n || typeof n !== 'object') continue;
+    const id = n.id || uid();
+    if (ids.has(id)) continue;
+    data.nodes.push({
+      id,
+      title: n.title || 'بدون عنوان',
+      body: n.body || '',
+      tags: Array.isArray(n.tags) ? n.tags : [],
+      hue: typeof n.hue === 'number' ? n.hue : null,
+      pinned: !!n.pinned,
+      x: (Math.random() - .5) * 400,
+      y: (Math.random() - .5) * 400,
+      vx: (Math.random() - .5) * 2,
+      vy: (Math.random() - .5) * 2,
+      ax: 0, ay: 0,
+      created: n.created || Date.now(),
+      updated: n.updated || n.created || Date.now(),
+      r: 18
+    });
+    ids.add(id);
+    addedNodes++;
+  }
+  rebuildIndex();
+
+  const pairs = new Set(data.links.map(l => l.source + '|' + l.target));
+  let addedLinks = 0;
+  for (const l of (p.links || [])) {
+    if (!l || !ids.has(l.source) || !ids.has(l.target) || l.source === l.target) continue;
+    const k1 = l.source + '|' + l.target, k2 = l.target + '|' + l.source;
+    if (pairs.has(k1) || pairs.has(k2)) continue;
+    data.links.push({ id: l.id || uid(), source: l.source, target: l.target, label: l.label || '' });
+    pairs.add(k1);
+    addedLinks++;
+  }
+
+  recomputeRadii();
+  persist(); wake();
+  renderTagBar(); updateEmpty(); renderList();
+  if (addedNodes === 0 && addedLinks === 0) toast('چیز جدیدی اضافه نشد');
+  else toast(`${addedNodes} یادداشت و ${addedLinks} ارتباط اضافه شد`);
+  setTimeout(fitView, 700);
+}
+
+$('#fileInput').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => importJSON(String(reader.result));
+  reader.onerror = () => toast('خواندن فایل ناموفق بود');
+  reader.readAsText(f);
+  e.target.value = '';
+});
+
+/* =========================================================
+   16) دادهٔ نمونه
+   ========================================================= */
+function addSample() {
+  const samples = [
+    { t: 'مغز دوم', b: 'سیستمی برای ذخیرهٔ ایده‌ها و ارتباطشان با هم.', tags: ['پروژه'], h: 265 },
+    { t: 'یادگیری', b: 'تکرار فاصله‌دار + بازیابی فعال = ماندگاری بیشتر', tags: ['مطالعه'], h: 220 },
+    { t: 'جاوااسکریپت وانیلا', b: 'بدون فریم‌ورک، بدون وابستگی، سبک و سریع', tags: ['کد'], h: 45 },
+    { t: 'طراحی گراف', b: 'نیروی دافعه + فنر یال‌ها + گرانش', tags: ['کد'], h: 180 },
+    { t: 'ایدهٔ مقاله', b: 'چطور مغز دوم بسازیم؟', tags: ['ایده', 'نوشتن'], h: 320 },
+    { t: 'عادت‌ها', b: 'کوچک شروع کن، ثابت بمان.', tags: ['مطالعه'], h: 140 }
+  ];
+  const created = [];
+  for (const s of samples) {
+    const n = {
+      id: uid(), title: s.t, body: s.b, tags: s.tags,
+      hue: s.h, pinned: false,
+      x: (Math.random() - .5) * 440,
+      y: (Math.random() - .5) * 440,
+      vx: (Math.random() - .5) * 3,
+      vy: (Math.random() - .5) * 3,
+      ax: 0, ay: 0,
+      created: Date.now(), updated: Date.now(), r: 18
+    };
+    data.nodes.push(n);
+    created.push(n.id);
+  }
+  rebuildIndex();
+
+  const pairs = [[0, 2], [0, 3], [1, 3], [1, 5], [0, 4], [4, 1], [2, 3]];
+  for (const [a, b] of pairs) {
+    data.links.push({ id: uid(), source: created[a], target: created[b], label: '' });
+  }
+
+  recomputeRadii();
+  persist(); wake();
+  renderTagBar(); updateEmpty(); renderList();
+  toast('دادهٔ نمونه اضافه شد');
+  setTimeout(fitView, 700);
+}
+
+/* =========================================================
+   17) وضعیت خالی
+   ========================================================= */
+function updateEmpty() {
+  $('#graphEmpty').hidden = data.nodes.length > 0;
+}
+
+/* =========================================================
+   18) toast
+   ========================================================= */
+let toastTimer;
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* =========================================================
+   19) کلیدهای میان‌بر
+   ========================================================= */
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (!$('#editorModal').hidden) closeEditor();
+    else if (!$('#settingsModal').hidden) $('#settingsModal').hidden = true;
+    else if (!$('#nodeMenuModal').hidden) closeNodeMenu();
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+    e.preventDefault(); openEditor(null);
+  }
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    setView('list');
+    setTimeout(() => $('#listSearch').focus(), 100);
+  }
+});
+
+/* =========================================================
+   20) راه‌اندازی
+   ========================================================= */
+loadData();
+recomputeRadii();
+resize();
+updateEmpty();
+renderTagBar();
+renderList();
+if (data.nodes.length) setTimeout(fitView, 350);
+loop();
+
+// ذخیرهٔ خودکار
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) persist();
+});
+window.addEventListener('pagehide', persist);
+</script>
+</body>
+</html>
